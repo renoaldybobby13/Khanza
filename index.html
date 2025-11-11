@@ -1,88 +1,846 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🍏 Diet Tracker</title>
-<link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplikasi Diet Tracker untuk membantu mencapai target berat badan ideal">
+    <meta name="theme-color" content="#9333ea">
+    <title>Diet Tracker - Target 55kg</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel Standalone -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        }
+        
+        #root {
+            min-height: 100vh;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* PWA Install prompt */
+        .pwa-install-prompt {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<header><h1>🍏 Diet Tracker</h1></header>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { Calendar, TrendingDown, Droplet, Utensils, Dumbbell, Heart, Plus, Search, X, CheckCircle, AlertCircle, Trash2 } = lucide;
 
-<main>
-<div class="tabs">
-<button class="tablink" onclick="openTab(event,'Profile')">Profil</button>
-<button class="tablink" onclick="openTab(event,'Log')">Log Makanan</button>
-<button class="tablink" onclick="openTab(event,'Chart')">Grafik Kalori</button>
-<button class="tablink" onclick="openTab(event,'Weight')">Grafik Berat</button>
-</div>
+        // Database makanan Indonesia lengkap
+        const foodDatabase = [
+          { name: "Nasi Putih", category: "Pokok", calories: 130, protein: 2.7, carbs: 28, fat: 0.3, fiber: 0.4, serving: "100g (1 centong)" },
+          { name: "Nasi Merah", category: "Pokok", calories: 111, protein: 2.6, carbs: 23, fat: 0.9, fiber: 1.8, serving: "100g" },
+          { name: "Lontong", category: "Pokok", calories: 120, protein: 2.1, carbs: 27, fat: 0.2, fiber: 0.5, serving: "100g" },
+          { name: "Kentang Rebus", category: "Pokok", calories: 77, protein: 2, carbs: 17, fat: 0.1, fiber: 2.2, serving: "100g" },
+          { name: "Ubi Rebus", category: "Pokok", calories: 86, protein: 1.6, carbs: 20, fat: 0.1, fiber: 3, serving: "100g" },
+          { name: "Roti Gandum", category: "Pokok", calories: 247, protein: 13, carbs: 41, fat: 3.4, fiber: 7, serving: "100g (2 lembar)" },
+          { name: "Ayam Dada Tanpa Kulit", category: "Protein", calories: 165, protein: 31, carbs: 0, fat: 3.6, fiber: 0, serving: "100g" },
+          { name: "Telur Ayam Rebus", category: "Protein", calories: 155, protein: 13, carbs: 1.1, fat: 11, fiber: 0, serving: "1 butir (50g)" },
+          { name: "Ikan Kembung", category: "Protein", calories: 205, protein: 18, carbs: 0, fat: 15, fiber: 0, serving: "100g" },
+          { name: "Ikan Tuna", category: "Protein", calories: 144, protein: 23, carbs: 0, fat: 5, fiber: 0, serving: "100g" },
+          { name: "Ikan Salmon", category: "Protein", calories: 208, protein: 20, carbs: 0, fat: 13, fiber: 0, serving: "100g" },
+          { name: "Udang", category: "Protein", calories: 99, protein: 24, carbs: 0.2, fat: 0.3, fiber: 0, serving: "100g" },
+          { name: "Daging Sapi", category: "Protein", calories: 250, protein: 26, carbs: 0, fat: 15, fiber: 0, serving: "100g" },
+          { name: "Tempe Goreng", category: "Protein", calories: 193, protein: 18.3, carbs: 10, fat: 10.8, fiber: 2, serving: "100g (2 potong)" },
+          { name: "Tempe Kukus", category: "Protein", calories: 150, protein: 18, carbs: 9, fat: 4, fiber: 2, serving: "100g" },
+          { name: "Tahu Putih", category: "Protein", calories: 76, protein: 8, carbs: 1.9, fat: 4.8, fiber: 0.3, serving: "100g (1 potong besar)" },
+          { name: "Kacang Merah Rebus", category: "Protein", calories: 127, protein: 8.7, carbs: 23, fat: 0.5, fiber: 6.4, serving: "100g" },
+          { name: "Kacang Hijau Rebus", category: "Protein", calories: 105, protein: 7, carbs: 19, fat: 0.4, fiber: 5, serving: "100g" },
+          { name: "Bayam Rebus", category: "Sayuran", calories: 23, protein: 2.9, carbs: 3.6, fat: 0.3, fiber: 2.2, serving: "100g" },
+          { name: "Kangkung Tumis", category: "Sayuran", calories: 25, protein: 2.6, carbs: 4.3, fat: 0.3, fiber: 2.5, serving: "100g" },
+          { name: "Brokoli Rebus", category: "Sayuran", calories: 35, protein: 2.4, carbs: 7, fat: 0.4, fiber: 3.3, serving: "100g" },
+          { name: "Wortel Mentah", category: "Sayuran", calories: 41, protein: 0.9, carbs: 10, fat: 0.2, fiber: 2.8, serving: "100g" },
+          { name: "Timun", category: "Sayuran", calories: 15, protein: 0.7, carbs: 3.6, fat: 0.1, fiber: 0.5, serving: "100g" },
+          { name: "Tomat", category: "Sayuran", calories: 18, protein: 0.9, carbs: 3.9, fat: 0.2, fiber: 1.2, serving: "100g" },
+          { name: "Sawi Hijau", category: "Sayuran", calories: 22, protein: 2.3, carbs: 4.2, fat: 0.3, fiber: 1.5, serving: "100g" },
+          { name: "Kol", category: "Sayuran", calories: 25, protein: 1.3, carbs: 5.8, fat: 0.1, fiber: 2.5, serving: "100g" },
+          { name: "Pisang", category: "Buah", calories: 89, protein: 1.1, carbs: 23, fat: 0.3, fiber: 2.6, serving: "100g (1 buah sedang)" },
+          { name: "Apel", category: "Buah", calories: 52, protein: 0.3, carbs: 14, fat: 0.2, fiber: 2.4, serving: "100g" },
+          { name: "Pepaya", category: "Buah", calories: 43, protein: 0.5, carbs: 11, fat: 0.3, fiber: 1.7, serving: "100g" },
+          { name: "Jeruk", category: "Buah", calories: 47, protein: 0.9, carbs: 12, fat: 0.1, fiber: 2.4, serving: "100g" },
+          { name: "Semangka", category: "Buah", calories: 30, protein: 0.6, carbs: 8, fat: 0.2, fiber: 0.4, serving: "100g" },
+          { name: "Mangga", category: "Buah", calories: 60, protein: 0.8, carbs: 15, fat: 0.4, fiber: 1.6, serving: "100g" },
+          { name: "Alpukat", category: "Buah", calories: 160, protein: 2, carbs: 9, fat: 15, fiber: 7, serving: "100g" },
+          { name: "Gorengan (Pisang Goreng)", category: "Jajanan", calories: 289, protein: 2.4, carbs: 38, fat: 14, fiber: 2, serving: "100g (2 potong)" },
+          { name: "Bakso Sapi", category: "Jajanan", calories: 198, protein: 14, carbs: 12, fat: 11, fiber: 0, serving: "100g (1 mangkok)" },
+          { name: "Mie Ayam", category: "Jajanan", calories: 450, protein: 15, carbs: 60, fat: 16, fiber: 2, serving: "1 porsi" },
+          { name: "Nasi Goreng", category: "Jajanan", calories: 333, protein: 8, carbs: 42, fat: 14, fiber: 1, serving: "1 porsi" },
+          { name: "Martabak Manis", category: "Jajanan", calories: 380, protein: 7, carbs: 52, fat: 16, fiber: 1, serving: "1 potong" },
+          { name: "Sate Ayam", category: "Jajanan", calories: 210, protein: 18, carbs: 8, fat: 12, fiber: 0.5, serving: "5 tusuk" },
+        ];
 
-<div id="Profile" class="tabcontent">
-<h2>👤 Profil Pengguna</h2>
-<div id="motivation-daily" class="motivation-box"></div>
-<div id="motivation-active" class="motivation-box" style="background-color:#4CAF50;color:white;"></div>
-<input type="text" id="name" placeholder="Nama">
-<select id="gender">
-<option value="">Jenis Kelamin</option>
-<option value="Pria">Pria</option>
-<option value="Wanita">Wanita</option>
-</select>
-<input type="number" id="age" placeholder="Umur (tahun)">
-<input type="number" id="height" placeholder="Tinggi (cm)">
-<input type="number" id="weight" placeholder="Berat (kg)">
-<input type="number" id="targetWeight" placeholder="Target Berat (kg)">
-<button id="save-profile">Simpan Profil</button>
-<p id="bmr-display"></p>
-<p id="calorie-goal-display"></p>
-<p id="visit-count"></p>
-</div>
+        const App = () => {
+          const [activeTab, setActiveTab] = useState('dashboard');
+          const [userProfile] = useState({
+            age: 23,
+            height: 146,
+            currentWeight: 76,
+            targetWeight: 55,
+            gender: 'female'
+          });
 
-<div id="Log" class="tabcontent">
-<h2>🍽 Log Makanan Hari Ini</h2>
-<div class="meal-section">
-<h3>SARAPAN</h3>
-<input type="text" placeholder="Input manual nama makanan" class="meal-manual" data-meal="sarapan">
-<input type="number" placeholder="Kalori" class="meal-cal" data-meal="sarapan">
-<button class="add-meal" data-meal="sarapan">Tambah</button>
-</div>
-<div class="meal-section">
-<h3>MAKAN SIANG</h3>
-<input type="text" placeholder="Input manual nama makanan" class="meal-manual" data-meal="siang">
-<input type="number" placeholder="Kalori" class="meal-cal" data-meal="siang">
-<button class="add-meal" data-meal="siang">Tambah</button>
-</div>
-<div class="meal-section">
-<h3>MAKAN SORE</h3>
-<input type="text" placeholder="Input manual nama makanan" class="meal-manual" data-meal="sore">
-<input type="number" placeholder="Kalori" class="meal-cal" data-meal="sore">
-<button class="add-meal" data-meal="sore">Tambah</button>
-</div>
-<div class="meal-section">
-<h3>MAKAN MALAM</h3>
-<input type="text" placeholder="Input manual nama makanan" class="meal-manual" data-meal="malam">
-<input type="number" placeholder="Kalori" class="meal-cal" data-meal="malam">
-<button class="add-meal" data-meal="malam">Tambah</button>
-</div>
-<ul id="food-log"></ul>
-<p>Total Kalori: <span id="total-cal">0</span> kcal</p>
-<p>Sisa Kalori: <span id="remaining-cal">0</span> kcal</p>
-</div>
+          const calculateBMR = () => {
+            return (10 * userProfile.currentWeight) + (6.25 * userProfile.height) - (5 * userProfile.age) - 161;
+          };
 
-<div id="Chart" class="tabcontent">
-<h2>📊 Grafik Kalori 7 Hari Terakhir</h2>
-<canvas id="calorieChart"></canvas>
-</div>
+          const bmr = calculateBMR();
+          const tdee = Math.round(bmr * 1.375);
+          const targetCalories = Math.round(tdee - 500);
+          const weightToLose = userProfile.currentWeight - userProfile.targetWeight;
+          const weeksNeeded = Math.ceil((weightToLose / 0.5));
 
-<div id="Weight" class="tabcontent">
-<h2>📈 Grafik Berat Badan</h2>
-<input type="number" id="weight-daily" placeholder="Masukkan berat hari ini">
-<button id="save-weight">Simpan Berat</button>
-<canvas id="weightChart"></canvas>
-</div>
-</main>
+          const getFromStorage = (key, defaultValue) => {
+            try {
+              const item = localStorage.getItem(key);
+              return item ? JSON.parse(item) : defaultValue;
+            } catch {
+              return defaultValue;
+            }
+          };
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="app.js"></script>
+          const [foodLog, setFoodLog] = useState(() => getFromStorage('foodLog', []));
+          const [searchTerm, setSearchTerm] = useState('');
+          const [selectedFood, setSelectedFood] = useState(null);
+          const [portion, setPortion] = useState(1);
+          const [waterIntake, setWaterIntake] = useState(() => getFromStorage('waterIntake', 0));
+          const [showFoodSearch, setShowFoodSearch] = useState(false);
+          const [mealTime, setMealTime] = useState('breakfast');
+          const [progressData, setProgressData] = useState(() => getFromStorage('progressData', [{ week: 0, weight: 76 }]));
+          const [currentWeight, setCurrentWeight] = useState(() => getFromStorage('currentWeight', 76));
+          const [customFoods, setCustomFoods] = useState(() => getFromStorage('customFoods', []));
+          const [showManualInput, setShowManualInput] = useState(false);
+          const [manualFood, setManualFood] = useState({
+            name: '', calories: '', protein: '', carbs: '', fat: '', fiber: '', serving: '1 porsi'
+          });
+          const [exerciseLog, setExerciseLog] = useState(() => getFromStorage('exerciseLog', []));
+
+          useEffect(() => { localStorage.setItem('foodLog', JSON.stringify(foodLog)); }, [foodLog]);
+          useEffect(() => { localStorage.setItem('waterIntake', JSON.stringify(waterIntake)); }, [waterIntake]);
+          useEffect(() => { localStorage.setItem('progressData', JSON.stringify(progressData)); }, [progressData]);
+          useEffect(() => { localStorage.setItem('currentWeight', JSON.stringify(currentWeight)); }, [currentWeight]);
+          useEffect(() => { localStorage.setItem('customFoods', JSON.stringify(customFoods)); }, [customFoods]);
+          useEffect(() => { localStorage.setItem('exerciseLog', JSON.stringify(exerciseLog)); }, [exerciseLog]);
+
+          const dailyTotals = foodLog.reduce((acc, food) => ({
+            calories: acc.calories + food.calories,
+            protein: acc.protein + food.protein,
+            carbs: acc.carbs + food.carbs,
+            fat: acc.fat + food.fat,
+            fiber: acc.fiber + food.fiber,
+          }), { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
+
+          const caloriesLeft = targetCalories - dailyTotals.calories;
+          const proteinTarget = Math.round(userProfile.currentWeight * 1.6);
+          const waterTarget = 2500;
+
+          const allFoods = [...foodDatabase, ...customFoods];
+          const filteredFoods = allFoods.filter(food =>
+            food.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            food.category.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+          const addFoodToLog = () => {
+            if (selectedFood) {
+              const foodEntry = {
+                ...selectedFood,
+                calories: Math.round(selectedFood.calories * portion),
+                protein: Math.round(selectedFood.protein * portion * 10) / 10,
+                carbs: Math.round(selectedFood.carbs * portion * 10) / 10,
+                fat: Math.round(selectedFood.fat * portion * 10) / 10,
+                fiber: Math.round(selectedFood.fiber * portion * 10) / 10,
+                portion: portion,
+                mealTime: mealTime,
+                id: Date.now(),
+              };
+              setFoodLog([...foodLog, foodEntry]);
+              setShowFoodSearch(false);
+              setSelectedFood(null);
+              setPortion(1);
+              setSearchTerm('');
+            }
+          };
+
+          const addManualFood = () => {
+            if (manualFood.name && manualFood.calories) {
+              const newFood = {
+                name: manualFood.name,
+                category: "Custom",
+                calories: parseFloat(manualFood.calories),
+                protein: parseFloat(manualFood.protein) || 0,
+                carbs: parseFloat(manualFood.carbs) || 0,
+                fat: parseFloat(manualFood.fat) || 0,
+                fiber: parseFloat(manualFood.fiber) || 0,
+                serving: manualFood.serving,
+              };
+              
+              setCustomFoods([...customFoods, newFood]);
+              
+              const foodEntry = { ...newFood, portion: 1, mealTime: mealTime, id: Date.now() };
+              setFoodLog([...foodLog, foodEntry]);
+              
+              setManualFood({ name: '', calories: '', protein: '', carbs: '', fat: '', fiber: '', serving: '1 porsi' });
+              setShowManualInput(false);
+              setShowFoodSearch(false);
+            }
+          };
+
+          const analyzeNutrition = (food) => {
+            const warnings = [];
+            const info = [];
+            if (food.fat > 15) warnings.push(`⚠️ Tinggi lemak (${food.fat}g). Batasi konsumsi.`);
+            if (food.calories > 300) warnings.push(`⚠️ Tinggi kalori (${food.calories} kal).`);
+            if (food.fiber > 3) info.push(`✅ Tinggi serat (${food.fiber}g). Bagus!`);
+            if (food.protein > 15) info.push(`✅ Tinggi protein (${food.protein}g). Baik!`);
+            if (food.category === "Sayuran") info.push(`✅ Sayuran sehat!`);
+            return { warnings, info };
+          };
+
+          const motivations = [
+            "Minggu ini adalah awal yang sempurna! 💪",
+            "Konsistensi adalah kunci! 🌟",
+            "Setiap pilihan sehat membawa Anda lebih dekat! 🚀",
+            "Tubuh sehat adalah investasi terbaik! ❤️",
+            "Hari ini kesempatan baru! 🌈",
+            "Seribu mil dimulai dengan satu langkah! 💎",
+            "Fokus pada progress! 🎯",
+          ];
+
+          const dailyMotivation = motivations[new Date().getDay()];
+
+          const exercises = [
+            { name: "Jalan Kaki", duration: "30 menit", calories: 150, icon: "🚶‍♀️", id: 1 },
+            { name: "Jogging Ringan", duration: "20 menit", calories: 200, icon: "🏃‍♀️", id: 2 },
+            { name: "Yoga", duration: "30 menit", calories: 120, icon: "🧘‍♀️", id: 3 },
+            { name: "Squat", duration: "3 set x 15", calories: 80, icon: "💪", id: 4 },
+            { name: "Plank", duration: "3 set x 30s", calories: 70, icon: "🤸‍♀️", id: 5 },
+            { name: "Naik Tangga", duration: "15 menit", calories: 130, icon: "🪜", id: 6 },
+          ];
+
+          const markExerciseDone = (exercise) => {
+            const exists = exerciseLog.find(e => e.id === exercise.id);
+            if (!exists) setExerciseLog([...exerciseLog, exercise]);
+          };
+
+          const totalCaloriesBurned = exerciseLog.reduce((sum, ex) => sum + ex.calories, 0);
+
+          return (
+            <div className="min-h-screen bg-gray-100 pb-20">
+              <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 shadow-lg">
+                <h1 className="text-2xl font-bold mb-1">Diet Tracker</h1>
+                <p className="text-sm opacity-90">Target: 76kg → 55kg</p>
+              </div>
+
+              <div className="p-4">
+                {activeTab === 'dashboard' && (
+                  <div className="space-y-4">
+                    <div className="bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Heart className="w-5 h-5" />
+                        <h3 className="font-semibold">Motivasi Hari Ini</h3>
+                      </div>
+                      <p className="text-sm">{dailyMotivation}</p>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow p-4">
+                      <h3 className="font-semibold mb-3">Profil Diet Anda</h3>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-gray-600">Berat Sekarang</p>
+                          <p className="text-xl font-bold text-purple-600">{currentWeight} kg</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Target Berat</p>
+                          <p className="text-xl font-bold text-green-600">{userProfile.targetWeight} kg</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Sisa Turun</p>
+                          <p className="text-lg font-semibold text-orange-600">{(currentWeight - userProfile.targetWeight).toFixed(1)} kg</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Target Waktu</p>
+                          <p className="text-lg font-semibold text-blue-600">~{weeksNeeded} minggu</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow p-4">
+                      <h3 className="font-semibold mb-3">Kalori Hari Ini</h3>
+                      <div className="relative pt-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-purple-600">{dailyTotals.calories} kal</span>
+                          <span className="text-sm text-gray-600">Target: {targetCalories} kal</span>
+                        </div>
+                        <div className="overflow-hidden h-3 rounded bg-purple-200">
+                          <div
+                            style={{ width: `${Math.min((dailyTotals.calories / targetCalories) * 100, 100)}%` }}
+                            className={`h-full ${dailyTotals.calories > targetCalories ? 'bg-red-500' : 'bg-purple-600'}`}
+                          ></div>
+                        </div>
+                        <p className="text-sm mt-2 text-center">
+                          {caloriesLeft > 0 ? (
+                            <span className="text-green-600">Sisa {caloriesLeft} kal</span>
+                          ) : (
+                            <span className="text-red-600">Melebihi {Math.abs(caloriesLeft)} kal</span>
+                          )}
+                        </p>
+                        {totalCaloriesBurned > 0 && (
+                          <p className="text-sm text-center text-blue-600 mt-1">Terbakar: {totalCaloriesBurned} kal</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Droplet className="w-5 h-5 text-blue-500" />
+                          <h3 className="font-semibold">Minum Air</h3>
+                        </div>
+                        <button
+                          onClick={() => setWaterIntake(waterIntake + 250)}
+                          className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm"
+                        >
+                          +250ml
+                        </button>
+                      </div>
+                      <div className="relative pt-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-blue-600">{waterIntake} ml</span>
+                          <span className="text-sm text-gray-600">Target: {waterTarget} ml</span>
+                        </div>
+                        <div className="overflow-hidden h-3 rounded bg-blue-200">
+                          <div
+                            style={{ width: `${Math.min((waterIntake / waterTarget) * 100, 100)}%` }}
+                            className="h-full bg-blue-500"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="bg-white rounded-lg shadow p-3 text-center">
+                        <Utensils className="w-6 h-6 mx-auto mb-2 text-purple-500" />
+                        <p className="text-xs text-gray-600">Makanan</p>
+                        <p className="font-bold text-lg">{foodLog.length}</p>
+                      </div>
+                      <div className="bg-white rounded-lg shadow p-3 text-center">
+                        <TrendingDown className="w-6 h-6 mx-auto mb-2 text-green-500" />
+                        <p className="text-xs text-gray-600">Progress</p>
+                        <p className="font-bold text-lg">{weightToLose > 0 ? ((76 - currentWeight) * 100 / weightToLose).toFixed(0) : 100}%</p>
+                      </div>
+                      <div className="bg-white rounded-lg shadow p-3 text-center">
+                        <Dumbbell className="w-6 h-6 mx-auto mb-2 text-orange-500" />
+                        <p className="text-xs text-gray-600">Olahraga</p>
+                        <p className="font-bold text-lg">{exerciseLog.length}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'food' && (
+                  <div className="space-y-4">
+                    <button
+                      onClick={() => setShowFoodSearch(true)}
+                      className="w-full bg-purple-600 text-white py-3 rounded-lg flex items-center justify-center gap-2 font-semibold"
+                    >
+                      <Plus className="w-5 h-5" />
+                      Tambah Makanan
+                    </button>
+
+                    {['breakfast', 'lunch', 'dinner', 'snack'].map(meal => {
+                      const mealFoods = foodLog.filter(f => f.mealTime === meal);
+                      const mealCalories = mealFoods.reduce((sum, f) => sum + f.calories, 0);
+                      const mealNames = { breakfast: 'Sarapan', lunch: 'Makan Siang', dinner: 'Makan Malam', snack: 'Snack' };
+                      
+                      return (
+                        <div key={meal} className="bg-white rounded-lg shadow p-4">
+                          <div className="flex justify-between items-center mb-3">
+                            <h3 className="font-semibold">{mealNames[meal]}</h3>
+                            <span className="text-sm text-gray-600">{mealCalories} kal</span>
+                          </div>
+                          {mealFoods.length === 0 ? (
+                            <p className="text-sm text-gray-400 text-center py-2">Belum ada makanan</p>
+                          ) : (
+                            <div className="space-y-2">
+                              {mealFoods.map(food => {
+                                const analysis = analyzeNutrition(food);
+                                return (
+                                  <div key={food.id} className="border-l-4 border-purple-500 pl-3 py-2">
+                                    <div className="flex justify-between items-start mb-1">
+                                      <div>
+                                        <p className="font-semibold text-sm">{food.name}</p>
+                                        <p className="text-xs text-gray-600">{food.portion}x ({food.serving})</p>
+                                      </div>
+                                      <button
+                                        onClick={() => setFoodLog(foodLog.filter(f => f.id !== food.id))}
+                                        className="text-red-500"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                    <div className="text-xs text-gray-600 mb-2">
+                                      {food.calories} kal | P: {food.protein}g | K: {food.carbs}g | L: {food.fat}g
+                                    </div>
+                                    {analysis.warnings.length > 0 && (
+                                      <div className="bg-red-50 border border-red-200 rounded p-2 mt-2">
+                                        {analysis.warnings.map((w, i) => (
+                                          <p key={i} className="text-xs text-red-700">{w}</p>
+                                        ))}
+                                      </div>
+                                    )}
+                                    {analysis.info.length > 0 && (
+                                      <div className="bg-green-50 border border-green-200 rounded p-2 mt-2">
+                                        {analysis.info.map((info, i) => (
+                                          <p key={i} className="text-xs text-green-700">{info}</p>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {showFoodSearch && (
+                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-lg w-full max-w-md h-[80vh] flex flex-col">
+                          <div className="p-4 border-b flex-shrink-0">
+                            <div className="flex justify-between items-center mb-3">
+                              <h3 className="font-bold text-lg">Cari Makanan</h3>
+                              <button onClick={() => { 
+                                setShowFoodSearch(false); 
+                                setSelectedFood(null); 
+                                setShowManualInput(false);
+                              }}>
+                                <X className="w-6 h-6" />
+                              </button>
+                            </div>
+                            
+                            <select
+                              value={mealTime}
+                              onChange={(e) => setMealTime(e.target.value)}
+                              className="w-full p-2 border rounded mb-3"
+                            >
+                              <option value="breakfast">Sarapan</option>
+                              <option value="lunch">Makan Siang</option>
+                              <option value="dinner">Makan Malam</option>
+                              <option value="snack">Snack</option>
+                            </select>
+
+                            {!showManualInput && (
+                              <>
+                                <div className="relative mb-3">
+                                  <Search className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" />
+                                  <input
+                                    type="text"
+                                    placeholder="Cari makanan..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 border rounded-lg"
+                                  />
+                                </div>
+                                
+                                <button
+                                  onClick={() => setShowManualInput(true)}
+                                  className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                  Input Makanan Manual
+                                </button>
+                              </>
+                            )}
+                          </div>
+
+                          <div className="flex-1 overflow-y-auto p-4" style={{ minHeight: 0 }}>
+                            {showManualInput ? (
+                              <div className="space-y-3">
+                                <h4 className="font-semibold mb-3">Tambah Makanan Baru</h4>
+                                
+                                <div>
+                                  <label className="block text-sm font-medium mb-1">Nama Makanan *</label>
+                                  <input
+                                    type="text"
+                                    value={manualFood.name}
+                                    onChange={(e) => setManualFood({...manualFood, name: e.target.value})}
+                                    className="w-full p-2 border rounded"
+                                    placeholder="contoh: Nasi Uduk"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium mb-1">Kalori (kal) *</label>
+                                  <input
+                                    type="number"
+                                    value={manualFood.calories}
+                                    onChange={(e) => setManualFood({...manualFood, calories: e.target.value})}
+                                    className="w-full p-2 border rounded"
+                                    placeholder="350"
+                                  />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="block text-sm font-medium mb-1">Protein (g)</label>
+                                    <input
+                                      type="number"
+                                      value={manualFood.protein}
+                                      onChange={(e) => setManualFood({...manualFood, protein: e.target.value})}
+                                      className="w-full p-2 border rounded"
+                                      placeholder="0"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium mb-1">Karbo (g)</label>
+                                    <input
+                                      type="number"
+                                      value={manualFood.carbs}
+                                      onChange={(e) => setManualFood({...manualFood, carbs: e.target.value})}
+                                      className="w-full p-2 border rounded"
+                                      placeholder="0"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="block text-sm font-medium mb-1">Lemak (g)</label>
+                                    <input
+                                      type="number"
+                                      value={manualFood.fat}
+                                      onChange={(e) => setManualFood({...manualFood, fat: e.target.value})}
+                                      className="w-full p-2 border rounded"
+                                      placeholder="0"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium mb-1">Serat (g)</label>
+                                    <input
+                                      type="number"
+                                      value={manualFood.fiber}
+                                      onChange={(e) => setManualFood({...manualFood, fiber: e.target.value})}
+                                      className="w-full p-2 border rounded"
+                                      placeholder="0"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium mb-1">Porsi</label>
+                                  <input
+                                    type="text"
+                                    value={manualFood.serving}
+                                    onChange={(e) => setManualFood({...manualFood, serving: e.target.value})}
+                                    className="w-full p-2 border rounded"
+                                    placeholder="1 piring"
+                                  />
+                                </div>
+
+                                <div className="bg-blue-50 border border-blue-200 rounded p-3 text-xs text-blue-800">
+                                  <p className="font-semibold mb-1">💡 Tips:</p>
+                                  <p>Makanan disimpan untuk dipakai lagi. Wajib: Nama & Kalori.</p>
+                                </div>
+
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => setShowManualInput(false)}
+                                    className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg font-semibold"
+                                  >
+                                    Batal
+                                  </button>
+                                  <button
+                                    onClick={addManualFood}
+                                    className="flex-1 bg-green-600 text-white py-2 rounded-lg font-semibold"
+                                    disabled={!manualFood.name || !manualFood.calories}
+                                  >
+                                    Simpan
+                                  </button>
+                                </div>
+                              </div>
+                            ) : selectedFood ? (
+                              <div className="space-y-4">
+                                <div>
+                                  <h4 className="font-bold mb-2">{selectedFood.name}</h4>
+                                  <p className="text-sm text-gray-600 mb-3">Kategori: {selectedFood.category}</p>
+                                  
+                                  <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+                                    <div className="bg-purple-50 p-2 rounded">
+                                      <p className="text-gray-600">Kalori</p>
+                                      <p className="font-bold text-purple-600">{Math.round(selectedFood.calories * portion)} kal</p>
+                                    </div>
+                                    <div className="bg-blue-50 p-2 rounded">
+                                      <p className="text-gray-600">Protein</p>
+                                      <p className="font-bold text-blue-600">{(selectedFood.protein * portion).toFixed(1)}g</p>
+                                    </div>
+                                    <div className="bg-yellow-50 p-2 rounded">
+                                      <p className="text-gray-600">Karbo</p>
+                                      <p className="font-bold text-yellow-600">{(selectedFood.carbs * portion).toFixed(1)}g</p>
+                                    </div>
+                                    <div className="bg-orange-50 p-2 rounded">
+                                      <p className="text-gray-600">Lemak</p>
+                                      <p className="font-bold text-orange-600">{(selectedFood.fat * portion).toFixed(1)}g</p>
+                                    </div>
+                                  </div>
+
+                                  <div className="mb-4">
+                                    <label className="block text-sm font-semibold mb-2">Porsi: {portion}x ({selectedFood.serving})</label>
+                                    <input
+                                      type="range"
+                                      min="0.5"
+                                      max="5"
+                                      step="0.5"
+                                      value={portion}
+                                      onChange={(e) => setPortion(parseFloat(e.target.value))}
+                                      className="w-full"
+                                    />
+                                  </div>
+
+                                  <button
+                                    onClick={addFoodToLog}
+                                    className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold"
+                                  >
+                                    Tambahkan ke Log
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                {filteredFoods.length === 0 ? (
+                                  <p className="text-center text-gray-500 py-4">Tidak ditemukan</p>
+                                ) : (
+                                  filteredFoods.map((food, idx) => (
+                                    <button
+                                      key={idx}
+                                      onClick={() => setSelectedFood(food)}
+                                      className="w-full text-left p-3 border rounded-lg hover:bg-purple-50"
+                                    >
+                                      <div className="flex justify-between items-start">
+                                        <div>
+                                          <p className="font-semibold">{food.name}</p>
+                                          <p className="text-xs text-gray-600">
+                                            {food.category} • {food.serving}
+                                            {food.category === "Custom" && <span className="ml-1 text-green-600">★</span>}
+                                          </p>
+                                        </div>
+                                        <span className="text-sm font-semibold text-purple-600">{food.calories} kal</span>
+                                      </div>
+                                    </button>
+                                  ))
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'progress' && (
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg shadow p-4">
+                      <h3 className="font-semibold mb-4">Update Berat Badan</h3>
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          value={currentWeight}
+                          onChange={(e) => setCurrentWeight(parseFloat(e.target.value) || 76)}
+                          className="flex-1 p-2 border rounded"
+                          step="0.1"
+                        />
+                        <button
+                          onClick={() => {
+                            setProgressData([...progressData, { week: progressData.length, weight: currentWeight }]);
+                          }}
+                          className="bg-purple-600 text-white px-4 py-2 rounded font-semibold"
+                        >
+                          Simpan
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow p-4">
+                      <h3 className="font-semibold mb-4">Grafik Progress</h3>
+                      <div className="h-48 flex items-end justify-between gap-2">
+                        {progressData.map((data, idx) => {
+                          const maxWeight = 80;
+                          const minWeight = 50;
+                          const height = ((data.weight - minWeight) / (maxWeight - minWeight)) * 100;
+                          return (
+                            <div key={idx} className="flex-1 flex flex-col items-center">
+                              <div className="text-xs font-semibold mb-1">{data.weight}kg</div>
+                              <div
+                                className="w-full bg-gradient-to-t from-purple-600 to-purple-400 rounded-t"
+                                style={{ height: `${height}%` }}
+                              ></div>
+                              <div className="text-xs text-gray-600 mt-1">W{data.week}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'exercise' && (
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg shadow p-4">
+                      <h3 className="font-semibold mb-3">Rekomendasi Olahraga</h3>
+                      <div className="space-y-3">
+                        {exercises.map((ex) => {
+                          const isDone = exerciseLog.find(e => e.id === ex.id);
+                          return (
+                            <div key={ex.id} className="border-l-4 border-orange-500 pl-3 py-2 bg-orange-50">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-2xl">{ex.icon}</span>
+                                    <h4 className="font-semibold">{ex.name}</h4>
+                                  </div>
+                                  <p className="text-sm text-gray-600">Durasi: {ex.duration}</p>
+                                  <p className="text-sm text-orange-600 font-semibold">Bakar: {ex.calories} kal</p>
+                                </div>
+                                <button
+                                  onClick={() => markExerciseDone(ex)}
+                                  className={`px-3 py-1 rounded text-sm ${
+                                    isDone ? 'bg-green-500 text-white' : 'bg-orange-500 text-white'
+                                  }`}
+                                >
+                                  {isDone ? '✓ Selesai' : 'Tandai'}
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'meal' && (
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg shadow p-4">
+                      <h3 className="font-semibold mb-3">Contoh Menu Diet</h3>
+                      <p className="text-sm text-gray-600 mb-4">Total: ~{targetCalories} kalori</p>
+
+                      <div className="space-y-4">
+                        <div className="border-l-4 border-yellow-500 pl-3">
+                          <h4 className="font-semibold text-yellow-700 mb-2">🌅 Sarapan (400 kal)</h4>
+                          <ul className="text-sm space-y-1 text-gray-700">
+                            <li>• 2 butir telur rebus</li>
+                            <li>• 1 potong roti gandum</li>
+                            <li>• 1 buah pisang</li>
+                          </ul>
+                        </div>
+
+                        <div className="border-l-4 border-red-500 pl-3">
+                          <h4 className="font-semibold text-red-700 mb-2">☀️ Makan Siang (500 kal)</h4>
+                          <ul className="text-sm space-y-1 text-gray-700">
+                            <li>• Nasi merah 100g</li>
+                            <li>• Ayam dada panggang</li>
+                            <li>• Tumis kangkung</li>
+                          </ul>
+                        </div>
+
+                        <div className="border-l-4 border-purple-500 pl-3">
+                          <h4 className="font-semibold text-purple-700 mb-2">🌙 Makan Malam (450 kal)</h4>
+                          <ul className="text-sm space-y-1 text-gray-700">
+                            <li>• Nasi merah 75g</li>
+                            <li>• Ikan panggang</li>
+                            <li>• Sayur bayam</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t">
+                <div className="flex justify-around py-2">
+                  <button
+                    onClick={() => setActiveTab('dashboard')}
+                    className={`flex flex-col items-center py-2 px-4 ${activeTab === 'dashboard' ? 'text-purple-600' : 'text-gray-600'}`}
+                  >
+                    <TrendingDown className="w-6 h-6" />
+                    <span className="text-xs mt-1">Home</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('food')}
+                    className={`flex flex-col items-center py-2 px-4 ${activeTab === 'food' ? 'text-purple-600' : 'text-gray-600'}`}
+                  >
+                    <Utensils className="w-6 h-6" />
+                    <span className="text-xs mt-1">Makanan</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('meal')}
+                    className={`flex flex-col items-center py-2 px-4 ${activeTab === 'meal' ? 'text-purple-600' : 'text-gray-600'}`}
+                  >
+                    <Calendar className="w-6 h-6" />
+                    <span className="text-xs mt-1">Menu</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('exercise')}
+                    className={`flex flex-col items-center py-2 px-4 ${activeTab === 'exercise' ? 'text-purple-600' : 'text-gray-600'}`}
+                  >
+                    <Dumbbell className="w-6 h-6" />
+                    <span className="text-xs mt-1">Olahraga</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('progress')}
+                    className={`flex flex-col items-center py-2 px-4 ${activeTab === 'progress' ? 'text-purple-600' : 'text-gray-600'}`}
+                  >
+                    <Heart className="w-6 h-6" />
+                    <span className="text-xs mt-1">Progress</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
 </body>
 </html>
