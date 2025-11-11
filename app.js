@@ -1,2 +1,2 @@
-// app.js full version sudah termasuk profil, motivasi, log makanan, dan grafik
-// Gunakan kode versi final yang sebelumnya sudah saya tuliskan
+let foodLogs = JSON.parse(localStorage.getItem('foodLogs')) || {};
+if(!foodLogs[todayKey]) foodLogs[todayKey] = {sarapan:[], siang:[], sore:[], malam:[]};
