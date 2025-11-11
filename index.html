@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍏 Diet Tracker</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+</head>
+<body>
+<header><h1>🍏 Diet Tracker</h1></header>
+
+<main>
+<div class="tabs">
+<button class="tablink" onclick="openTab(event,'Profile')">Profil</button>
+<button class="tablink" onclick="openTab(event,'Log')">Log Makanan</button>
+<button class="tablink" onclick="openTab(event,'Chart')">Grafik Kalori</button>
+<button class="tablink" onclick="openTab(event,'Weight')">Grafik Berat</button>
+</div>
+
+<div id="Profile" class="tabcontent">
+<h2>👤 Profil Pengguna</h2>
+<div id="motivation-daily" class="motivation-box"></div>
+<div id="motivation-active" class="motivation-box" style="background-color:#4CAF50;color:white;"></div>
+<input type="text" id="name" placeholder="Nama">
+<select id="gender">
+<option value="">Jenis Kelamin</option>
+<option value="Pria">Pria</option>
+<option value="Wanita">Wanita</option>
+</select>
+<input type="number" id="age" placeholder="Umur (tahun)">
+<input type="number" id="height" placeholder="Tinggi (cm)">
+<input type="number" id="weight" placeholder="Berat (kg)">
+<input type="number" id="targetWeight" placeholder="Target Berat (kg)">
+<button id="save-profile">Simpan Profil</button>
+<p id="bmr-display"></p>
+<p id="calorie-goal-display"></p>
+<p id="visit-count"></p>
+</div>
+
+<div id="Log" class="tabcontent">
+<h2>🍽 Log Makanan Hari Ini</h2>
+<div class="meal-section">
+<h3>SARAPAN</h3>
+<input type="text" placeholder="Input manual nama makanan" class="meal-manual" data-meal="sarapan">
+<input type="number" placeholder="Kalori" class="meal-cal" data-meal="sarapan">
+<button class="add-meal" data-meal="sarapan">Tambah</button>
+</div>
+<div class="meal-section">
+<h3>MAKAN SIANG</h3>
+<input type="text" placeholder="Input manual nama makanan" class="meal-manual" data-meal="siang">
+<input type="number" placeholder="Kalori" class="meal-cal" data-meal="siang">
+<button class="add-meal" data-meal="siang">Tambah</button>
+</div>
+<div class="meal-section">
+<h3>MAKAN SORE</h3>
+<input type="text" placeholder="Input manual nama makanan" class="meal-manual" data-meal="sore">
+<input type="number" placeholder="Kalori" class="meal-cal" data-meal="sore">
+<button class="add-meal" data-meal="sore">Tambah</button>
+</div>
+<div class="meal-section">
+<h3>MAKAN MALAM</h3>
+<input type="text" placeholder="Input manual nama makanan" class="meal-manual" data-meal="malam">
+<input type="number" placeholder="Kalori" class="meal-cal" data-meal="malam">
+<button class="add-meal" data-meal="malam">Tambah</button>
+</div>
+<ul id="food-log"></ul>
+<p>Total Kalori: <span id="total-cal">0</span> kcal</p>
+<p>Sisa Kalori: <span id="remaining-cal">0</span> kcal</p>
+</div>
+
+<div id="Chart" class="tabcontent">
+<h2>📊 Grafik Kalori 7 Hari Terakhir</h2>
+<canvas id="calorieChart"></canvas>
+</div>
+
+<div id="Weight" class="tabcontent">
+<h2>📈 Grafik Berat Badan</h2>
+<input type="number" id="weight-daily" placeholder="Masukkan berat hari ini">
+<button id="save-weight">Simpan Berat</button>
+<canvas id="weightChart"></canvas>
+</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
