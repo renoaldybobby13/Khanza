@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplikasi Diet Tracker untuk membantu mencapai target berat badan ideal">
+    <meta name="theme-color" content="#9333ea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Diet Tracker - Target 55kg</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: linear-gradient(to right, #9333ea, #ec4899);
+            color: white;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            padding: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .gradient-card {
+            background: linear-gradient(to right, #ec4899, #9333ea);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .gradient-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-box .label {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .stat-box .value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #9333ea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #7e22ce;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-blue {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 16px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s;
+            border: none;
+            background: none;
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: #9333ea;
+        }
+
+        .nav-item .icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .food-item {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .food-item:hover {
+            background: #f9fafb;
+            border-color: #9333ea;
+        }
+
+        .food-log-item {
+            border-left: 4px solid #9333ea;
+            padding: 12px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            color: #92400e;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            border: 1px solid #22c55e;
+            color: #166534;
+        }
+
+        .exercise-item {
+            border-left: 4px solid #f97316;
+            background: #fff7ed;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Diet Tracker</h1>
+        <p>Target: 76kg → 55kg</p>
+    </div>
+
+    <div class="container" id="app"></div>
+
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('dashboard')">
+            <div class="icon">🏠</div>
+            <div>Home</div>
+        </button>
+        <button class="nav-item" onclick="switchTab('food')">
+            <div class="icon">🍽️</div>
+            <div>Makanan</div>
+        </button>
+        <button class="nav-item" onclick="switchTab('meal')">
+            <div class="icon">📅</div>
+            <div>Menu</div>
+        </button>
+        <button class="nav-item" onclick="switchTab('exercise')">
+            <div class="icon">💪</div>
+            <div>Olahraga</div>
+        </button>
+        <button class="nav-item" onclick="switchTab('progress')">
+            <div class="icon">📊</div>
+            <div>Progress</div>
+        </button>
+    </div>
+
+    <div class="modal" id="foodModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cari Makanan</h3>
+                <button onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer;">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Database makanan Indonesia
+        const foodDatabase = [
+          { name: "Nasi Putih", category: "Pokok", calories: 130, protein: 2.7, carbs: 28, fat: 0.3, fiber: 0.4, serving: "100g (1 centong)" },
+          { name: "Nasi Merah", category: "Pokok", calories: 111, protein: 2.6, carbs: 23, fat: 0.9, fiber: 1.8, serving: "100g" },
+          { name: "Lontong", category: "Pokok", calories: 120, protein: 2.1, carbs: 27, fat: 0.2, fiber: 0.5, serving: "100g" },
+          { name: "Kentang Rebus", category: "Pokok", calories: 77, protein: 2, carbs: 17, fat: 0.1, fiber: 2.2, serving: "100g" },
+          { name: "Ubi Rebus", category: "Pokok", calories: 86, protein: 1.6, carbs: 20, fat: 0.1, fiber: 3, serving: "100g" },
+          { name: "Roti Gandum", category: "Pokok", calories: 247, protein: 13, carbs: 41, fat: 3.4, fiber: 7, serving: "100g (2 lembar)" },
+          { name: "Ayam Dada Tanpa Kulit", category: "Protein", calories: 165, protein: 31, carbs: 0, fat: 3.6, fiber: 0, serving: "100g" },
+          { name: "Telur Ayam Rebus", category: "Protein", calories: 155, protein: 13, carbs: 1.1, fat: 11, fiber: 0, serving: "1 butir (50g)" },
+          { name: "Ikan Kembung", category: "Protein", calories: 205, protein: 18, carbs: 0, fat: 15, fiber: 0, serving: "100g" },
+          { name: "Ikan Tuna", category: "Protein", calories: 144, protein: 23, carbs: 0, fat: 5, fiber: 0, serving: "100g" },
+          { name: "Ikan Salmon", category: "Protein", calories: 208, protein: 20, carbs: 0, fat: 13, fiber: 0, serving: "100g" },
+          { name: "Udang", category: "Protein", calories: 99, protein: 24, carbs: 0.2, fat: 0.3, fiber: 0, serving: "100g" },
+          { name: "Daging Sapi", category: "Protein", calories: 250, protein: 26, carbs: 0, fat: 15, fiber: 0, serving: "100g" },
+          { name: "Tempe Goreng", category: "Protein", calories: 193, protein: 18.3, carbs: 10, fat: 10.8, fiber: 2, serving: "100g (2 potong)" },
+          { name: "Tempe Kukus", category: "Protein", calories: 150, protein: 18, carbs: 9, fat: 4, fiber: 2, serving: "100g" },
+          { name: "Tahu Putih", category: "Protein", calories: 76, protein: 8, carbs: 1.9, fat: 4.8, fiber: 0.3, serving: "100g" },
+          { name: "Kacang Merah Rebus", category: "Protein", calories: 127, protein: 8.7, carbs: 23, fat: 0.5, fiber: 6.4, serving: "100g" },
+          { name: "Bayam Rebus", category: "Sayuran", calories: 23, protein: 2.9, carbs: 3.6, fat: 0.3, fiber: 2.2, serving: "100g" },
+          { name: "Kangkung Tumis", category: "Sayuran", calories: 25, protein: 2.6, carbs: 4.3, fat: 0.3, fiber: 2.5, serving: "100g" },
+          { name: "Brokoli Rebus", category: "Sayuran", calories: 35, protein: 2.4, carbs: 7, fat: 0.4, fiber: 3.3, serving: "100g" },
+          { name: "Wortel Mentah", category: "Sayuran", calories: 41, protein: 0.9, carbs: 10, fat: 0.2, fiber: 2.8, serving: "100g" },
+          { name: "Timun", category: "Sayuran", calories: 15, protein: 0.7, carbs: 3.6, fat: 0.1, fiber: 0.5, serving: "100g" },
+          { name: "Tomat", category: "Sayuran", calories: 18, protein: 0.9, carbs: 3.9, fat: 0.2, fiber: 1.2, serving: "100g" },
+          { name: "Pisang", category: "Buah", calories: 89, protein: 1.1, carbs: 23, fat: 0.3, fiber: 2.6, serving: "100g" },
+          { name: "Apel", category: "Buah", calories: 52, protein: 0.3, carbs: 14, fat: 0.2, fiber: 2.4, serving: "100g" },
+          { name: "Pepaya", category: "Buah", calories: 43, protein: 0.5, carbs: 11, fat: 0.3, fiber: 1.7, serving: "100g" },
+          { name: "Jeruk", category: "Buah", calories: 47, protein: 0.9, carbs: 12, fat: 0.1, fiber: 2.4, serving: "100g" },
+          { name: "Semangka", category: "Buah", calories: 30, protein: 0.6, carbs: 8, fat: 0.2, fiber: 0.4, serving: "100g" },
+          { name: "Mangga", category: "Buah", calories: 60, protein: 0.8, carbs: 15, fat: 0.4, fiber: 1.6, serving: "100g" },
+          { name: "Gorengan", category: "Jajanan", calories: 289, protein: 2.4, carbs: 38, fat: 14, fiber: 2, serving: "100g" },
+          { name: "Bakso Sapi", category: "Jajanan", calories: 198, protein: 14, carbs: 12, fat: 11, fiber: 0, serving: "1 mangkok" },
+          { name: "Mie Ayam", category: "Jajanan", calories: 450, protein: 15, carbs: 60, fat: 16, fiber: 2, serving: "1 porsi" },
+          { name: "Nasi Goreng", category: "Jajanan", calories: 333, protein: 8, carbs: 42, fat: 14, fiber: 1, serving: "1 porsi" },
+        ];
+
+        // State
+        let currentTab = 'dashboard';
+        let foodLog = JSON.parse(localStorage.getItem('foodLog') || '[]');
+        let waterIntake = parseInt(localStorage.getItem('waterIntake') || '0');
+        let progressData = JSON.parse(localStorage.getItem('progressData') || '[{"week":0,"weight":76}]');
+        let currentWeight = parseFloat(localStorage.getItem('currentWeight') || '76');
+        let customFoods = JSON.parse(localStorage.getItem('customFoods') || '[]');
+        let exerciseLog = JSON.parse(localStorage.getItem('exerciseLog') || '[]');
+        
+        const userProfile = { age: 23, height: 146, currentWeight: 76, targetWeight: 55 };
+        const bmr = (10 * userProfile.currentWeight) + (6.25 * userProfile.height) - (5 * userProfile.age) - 161;
+        const tdee = Math.round(bmr * 1.375);
+        const targetCalories = Math.round(tdee - 500);
+        const weightToLose = userProfile.currentWeight - userProfile.targetWeight;
+        const weeksNeeded = Math.ceil((weightToLose / 0.5));
+
+        const motivations = [
+            "Minggu ini adalah awal yang sempurna! 💪",
+            "Konsistensi adalah kunci! 🌟",
+            "Setiap pilihan sehat membawa Anda lebih dekat! 🚀",
+            "Tubuh sehat adalah investasi terbaik! ❤️",
+            "Hari ini kesempatan baru! 🌈",
+            "Seribu mil dimulai dengan satu langkah! 💎",
+            "Fokus pada progress! 🎯",
+        ];
+
+        const exercises = [
+            { name: "Jalan Kaki", duration: "30 menit", calories: 150, icon: "🚶‍♀️", id: 1 },
+            { name: "Jogging Ringan", duration: "20 menit", calories: 200, icon: "🏃‍♀️", id: 2 },
+            { name: "Yoga", duration: "30 menit", calories: 120, icon: "🧘‍♀️", id: 3 },
+            { name: "Squat", duration: "3 set x 15", calories: 80, icon: "💪", id: 4 },
+            { name: "Plank", duration: "3 set x 30s", calories: 70, icon: "🤸‍♀️", id: 5 },
+            { name: "Naik Tangga", duration: "15 menit", calories: 130, icon: "🪜", id: 6 },
+        ];
+
+        // Calculate totals
+        function getDailyTotals() {
+            return foodLog.reduce((acc, food) => ({
+                calories: acc.calories + food.calories,
+                protein: acc.protein + food.protein,
+                carbs: acc.carbs + food.carbs,
+                fat: acc.fat + food.fat,
+                fiber: acc.fiber + food.fiber,
+            }), { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
+        }
+
+        function getTotalCaloriesBurned() {
+            return exerciseLog.reduce((sum, ex) => sum + ex.calories, 0);
+        }
+
+        // Save to localStorage
+        function saveData() {
+            localStorage.setItem('foodLog', JSON.stringify(foodLog));
+            localStorage.setItem('waterIntake', waterIntake.toString());
+            localStorage.setItem('progressData', JSON.stringify(progressData));
+            localStorage.setItem('currentWeight', currentWeight.toString());
+            localStorage.setItem('customFoods', JSON.stringify(customFoods));
+            localStorage.setItem('exerciseLog', JSON.stringify(exerciseLog));
+        }
+
+        // Switch tabs
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            render();
+        }
+
+        // Modal functions
+        function openFoodModal(mealTime) {
+            document.getElementById('foodModal').classList.add('show');
+            renderFoodSearch(mealTime);
+        }
+
+        function closeModal() {
+            document.getElementById('foodModal').classList.remove('show');
+        }
+
+        // Render functions
+        function render() {
+            const app = document.getElementById('app');
+            
+            if (currentTab === 'dashboard') {
+                app.innerHTML = renderDashboard();
+            } else if (currentTab === 'food') {
+                app.innerHTML = renderFood();
+            } else if (currentTab === 'progress') {
+                app.innerHTML = renderProgress();
+            } else if (currentTab === 'exercise') {
+                app.innerHTML = renderExercise();
+            } else if (currentTab === 'meal') {
+                app.innerHTML = renderMeal();
+            }
+        }
+
+        function renderDashboard() {
+            const totals = getDailyTotals();
+            const caloriesLeft = targetCalories - totals.calories;
+            const proteinTarget = Math.round(userProfile.currentWeight * 1.6);
+            const waterTarget = 2500;
+            const caloriesBurned = getTotalCaloriesBurned();
+            const dailyMotivation = motivations[new Date().getDay()];
+
+            return `
+                <div class="gradient-card">
+                    <h3>❤️ Motivasi Hari Ini</h3>
+                    <p style="font-size:14px">${dailyMotivation}</p>
+                </div>
+
+                <div class="card">
+                    <h3>Profil Diet Anda</h3>
+                    <div class="grid-2">
+                        <div class="stat-box">
+                            <div class="label">Berat Sekarang</div>
+                            <div class="value" style="color:#9333ea">${currentWeight} kg</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="label">Target Berat</div>
+                            <div class="value" style="color:#16a34a">${userProfile.targetWeight} kg</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="label">Sisa Turun</div>
+                            <div class="value" style="color:#ea580c">${(currentWeight - userProfile.targetWeight).toFixed(1)} kg</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="label">Target Waktu</div>
+                            <div class="value" style="color:#3b82f6">~${weeksNeeded} minggu</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Kalori Hari Ini</h3>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px">
+                        <span style="font-weight:600;color:#9333ea">${totals.calories} kal</span>
+                        <span style="color:#6b7280">Target: ${targetCalories} kal</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:${Math.min((totals.calories / targetCalories) * 100, 100)}%;background:${totals.calories > targetCalories ? '#ef4444' : '#9333ea'}"></div>
+                    </div>
+                    <p style="text-align:center;font-size:14px;margin-top:8px;color:${caloriesLeft > 0 ? '#16a34a' : '#ef4444'}">
+                        ${caloriesLeft > 0 ? `Sisa ${caloriesLeft} kalori` : `Melebihi ${Math.abs(caloriesLeft)} kalori`}
+                    </p>
+                    ${caloriesBurned > 0 ? `<p style="text-align:center;font-size:14px;color:#3b82f6">Terbakar: ${caloriesBurned} kal</p>` : ''}
+                </div>
+
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                        <h3 style="margin:0">💧 Minum Air</h3>
+                        <button class="btn-blue" onclick="addWater()">+250ml</button>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px">
+                        <span style="font-weight:600;color:#3b82f6">${waterIntake} ml</span>
+                        <span style="color:#6b7280">Target: ${waterTarget} ml</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:${Math.min((waterIntake / waterTarget) * 100, 100)}%;background:#3b82f6"></div>
+                    </div>
+                </div>
+
+                <div class="grid-3">
+                    <div class="card stat-box">
+                        <div style="font-size:32px;margin-bottom:8px">🍽️</div>
+                        <div class="label">Makanan</div>
+                        <div class="value">${foodLog.length}</div>
+                    </div>
+                    <div class="card stat-box">
+                        <div style="font-size:32px;margin-bottom:8px">📈</div>
+                        <div class="label">Progress</div>
+                        <div class="value">${weightToLose > 0 ? ((76 - currentWeight) * 100 / weightToLose).toFixed(0) : 100}%</div>
+                    </div>
+                    <div class="card stat-box">
+                        <div style="font-size:32px;margin-bottom:8px">💪</div>
+                        <div class="label">Olahraga</div>
+                        <div class="value">${exerciseLog.length}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFood() {
+            const meals = ['breakfast', 'lunch', 'dinner', 'snack'];
+            const mealNames = { breakfast: 'Sarapan', lunch: 'Makan Siang', dinner: 'Makan Malam', snack: 'Snack' };
+            
+            let html = '<button class="btn btn-primary" onclick="openFoodModal(\'breakfast\')">➕ Tambah Makanan</button>';
+            
+            meals.forEach(meal => {
+                const mealFoods = foodLog.filter(f => f.mealTime === meal);
+                const mealCalories = mealFoods.reduce((sum, f) => sum + f.calories, 0);
+                
+                html += `
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+                            <h3>${mealNames[meal]}</h3>
+                            <span style="color:#6b7280;font-size:14px">${mealCalories} kal</span>
+                        </div>
+                        ${mealFoods.length === 0 ? '<p style="text-align:center;color:#9ca3af;font-size:14px">Belum ada makanan</p>' : 
+                            mealFoods.map(food => `
+                                <div class="food-log-item">
+                                    <button class="delete-btn" onclick="deleteFood(${food.id})">×</button>
+                                    <div style="font-weight:600;font-size:14px;margin-bottom:4px">${food.name}</div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:8px">${food.portion}x (${food.serving})</div>
+                                    <div style="font-size:12px;color:#6b7280">${food.calories} kal | P: ${food.protein}g | K: ${food.carbs}g | L: ${food.fat}g</div>
+                                    ${analyzeFood(food)}
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+
+        function renderProgress() {
+            return `
+                <div class="card">
+                    <h3>Update Berat Badan</h3>
+                    <div style="display:flex;gap:8px">
+                        <input type="number" id="weightInput" value="${currentWeight}" step="0.1" style="flex:1;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+                        <button class="btn btn-primary" onclick="saveWeight()" style="width:auto;padding:8px 16px">Simpan</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Grafik Progress</h3>
+                    <div style="height:200px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:16px 0">
+                        ${progressData.map(data => {
+                            const height = ((data.weight - 50) / 30) * 100;
+                            return `
+                                <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+                                    <div style="font-size:12px;font-weight:600;margin-bottom:4px">${data.weight}kg</div>
+                                    <div style="width:100%;background:linear-gradient(to top, #9333ea, #c084fc);border-radius:4px 4px 0 0;height:${height}%"></div>
+                                    <div style="font-size:10px;color:#6b7280;margin-top:4px">W${data.week}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div style="border-top:1px solid #e5e7eb;padding-top:12px;margin-top:12px">
+                        <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px">
+                            <span style="color:#6b7280">Target:</span>
+                            <span style="font-weight:600;color:#16a34a">${userProfile.targetWeight}kg</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px">
+                            <span style="color:#6b7280">Sisa:</span>
+                            <span style="font-weight:600;color:#ea580c">${(currentWeight - userProfile.targetWeight).toFixed(1)}kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Prediksi Pencapaian</h3>
+                    <p style="font-size:14px;margin-bottom:8px">Dengan defisit 500 kalori/hari:</p>
+                    <ul style="font-size:14px;color:#4b5563;list-style:disc;padding-left:20px">
+                        <li>Penurunan: ~0.5kg per minggu</li>
+                        <li>Target tercapai: ~${weeksNeeded} minggu</li>
+                        <li>Estimasi selesai: ${new Date(Date.now() + weeksNeeded * 7 * 24 * 60 * 60 * 1000).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function renderExercise() {
+            return `
+                <div style="background:linear-gradient(to right, #f97316, #ef4444);color:white;padding:16px;border-radius:8px;margin-bottom:16px">
+                    <h3 style="color:white;display:flex;align-items:center;gap:8px">💪 Tips Olahraga</h3>
+                    <p style="font-size:14px">Kombinasi kardio dan strength training!</p>
+                </div>
+
+                <div class="card">
+                    <h3>Rekomendasi Olahraga</h3>
+                    ${exercises.map(ex => {
+                        const isDone = exerciseLog.find(e => e.id === ex.id);
+                        return `
+                            <div class="exercise-item">
+                                <div style="display:flex;justify-content:space-between;align-items:start">
+                                    <div style="flex:1">
+                                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                                            <span style="font-size:24px">${ex.icon}</span>
+                                            <h4 style="font-weight:600">${ex.name}</h4>
+                                        </div>
+                                        <p style="font-size:14px;color:#6b7280;margin-bottom:4px">Durasi: ${ex.duration}</p>
+                                        <p style="font-size:14px;color:#f97316;font-weight:600">Bakar: ${ex.calories} kal</p>
+                                    </div>
+                                    <button class="btn btn-small" onclick="markExercise(${ex.id})" style="background:${isDone ? '#16a34a' : '#f97316'};color:white">
+                                        ${isDone ? '✓ Selesai' : 'Tandai'}
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                <div class="card">
+                    <h3>Tips Olahraga</h3>
+                    <ul style="font-size:14px;color:#4b5563;list-style:none;padding:0">
+                        <li style="margin-bottom:8px">✓ Mulai intensitas rendah, tingkatkan bertahap</li>
+                        <li style="margin-bottom:8px">✓ Konsisten lebih penting dari intensitas</li>
+                        <li style="margin-bottom:8px">✓ Pemanasan sebelum, pendinginan setelah</li>
+                        <li style="margin-bottom:8px">✓ Istirahat cukup antar sesi</li>
+                        <li>✓ Dengarkan tubuh Anda</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function renderMeal() {
+            return `
+                <div class="card">
+                    <h3>Contoh Menu Diet</h3>
+                    <p style="font-size:14px;color:#6b7280;margin-bottom:16px">Total: ~${targetCalories} kalori</p>
+
+                    <div style="border-left:4px solid #eab308;padding-left:12px;margin-bottom:16px">
+                        <h4 style="color:#a16207;margin-bottom:8px">🌅 Sarapan (400 kal)</h4>
+                        <ul style="font-size:14px;color:#4b5563;list-style:disc;padding-left:20px">
+                            <li>2 butir telur rebus</li>
+                            <li>1 potong roti gandum</li>
+                            <li>1 buah pisang</li>
+                            <li>Teh/kopi tanpa gula</li>
+                        </ul>
+                    </div>
+
+                    <div style="border-left:4px solid #f97316;padding-left:12px;margin-bottom:16px">
+                        <h4 style="color:#c2410c;margin-bottom:8px">🌞 Snack Pagi (150 kal)</h4>
+                        <ul style="font-size:14px;color:#4b5563;list-style:disc;padding-left:20px">
+                            <li>1 buah apel</li>
+                            <li>10 kacang almond</li>
+                        </ul>
+                    </div>
+
+                    <div style="border-left:4px solid #ef4444;padding-left:12px;margin-bottom:16px">
+                        <h4 style="color:#991b1b;margin-bottom:8px">☀️ Makan Siang (500 kal)</h4>
+                        <ul style="font-size:14px;color:#4b5563;list-style:disc;padding-left:20px">
+                            <li>Nasi merah 100g</li>
+                            <li>Ayam dada panggang 100g</li>
+                            <li>Tumis kangkung</li>
+                            <li>Tempe goreng 2 potong</li>
+                            <li>Sambal dan lalapan</li>
+                        </ul>
+                    </div>
+
+                    <div style="border-left:4px solid #16a34a;padding-left:12px;margin-bottom:16px">
+                        <h4 style="color:#166534;margin-bottom:8px">🌤️ Snack Sore (100 kal)</h4>
+                        <ul style="font-size:14px;color:#4b5563;list-style:disc;padding-left:20px">
+                            <li>1 buah jeruk</li>
+                            <li>atau yogurt plain</li>
+                        </ul>
+                    </div>
+
+                    <div style="border-left:4px solid #9333ea;padding-left:12px">
+                        <h4 style="color:#7e22ce;margin-bottom:8px">🌙 Makan Malam (450 kal)</h4>
+                        <ul style="font-size:14px;color:#4b5563;list-style:disc;padding-left:20px">
+                            <li>Nasi merah 75g</li>
+                            <li>Ikan panggang 100g</li>
+                            <li>Sayur bening bayam</li>
+                            <li>Tahu kukus</li>
+                            <li>Sambal</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background:#dbeafe;border:1px solid #3b82f6;border-radius:8px;padding:16px">
+                    <p style="font-weight:600;font-size:14px;margin-bottom:8px;color:#1e3a8a">💡 Tips Menu Diet:</p>
+                    <ul style="font-size:14px;color:#1e40af;list-style:disc;padding-left:20px">
+                        <li>Variasikan menu setiap hari</li>
+                        <li>Perbanyak sayuran hijau</li>
+                        <li>Kurangi gorengan</li>
+                        <li>Minum air putih minimal 8 gelas</li>
+                        <li>Hindari makan 3 jam sebelum tidur</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function analyzeFood(food) {
+            let html = '';
+            if (food.fat > 15) {
+                html += '<div class="alert alert-warning">⚠️ Tinggi lemak. Batasi konsumsi.</div>';
+            }
+            if (food.calories > 300) {
+                html += '<div class="alert alert-warning">⚠️ Tinggi kalori. Perhatikan porsi.</div>';
+            }
+            if (food.fiber > 3) {
+                html += '<div class="alert alert-success">✅ Tinggi serat. Bagus!</div>';
+            }
+            if (food.protein > 15) {
+                html += '<div class="alert alert-success">✅ Tinggi protein. Baik!</div>';
+            }
+            return html;
+        }
+
+        function renderFoodSearch(mealTime) {
+            const allFoods = [...foodDatabase, ...customFoods];
+            const modalBody = document.getElementById('modalBody');
+            
+            modalBody.innerHTML = `
+                <div class="input-group">
+                    <label>Waktu Makan</label>
+                    <select id="mealTimeSelect">
+                        <option value="breakfast" ${mealTime === 'breakfast' ? 'selected' : ''}>Sarapan</option>
+                        <option value="lunch" ${mealTime === 'lunch' ? 'selected' : ''}>Makan Siang</option>
+                        <option value="dinner" ${mealTime === 'dinner' ? 'selected' : ''}>Makan Malam</option>
+                        <option value="snack" ${mealTime === 'snack' ? 'selected' : ''}>Snack</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Cari Makanan</label>
+                    <input type="text" id="searchInput" placeholder="Ketik nama makanan..." oninput="filterFoods()">
+                </div>
+
+                <button class="btn btn-success" style="width:100%;margin-bottom:16px" onclick="showManualInput()">
+                    ➕ Input Makanan Manual
+                </button>
+
+                <div id="foodList">
+                    ${allFoods.map((food, idx) => `
+                        <div class="food-item" onclick="selectFood(${idx})">
+                            <div style="display:flex;justify-content:space-between;align-items:start">
+                                <div>
+                                    <div style="font-weight:600;font-size:14px">${food.name}</div>
+                                    <div style="font-size:12px;color:#6b7280">${food.category} • ${food.serving}</div>
+                                </div>
+                                <span style="font-weight:600;color:#9333ea;font-size:14px">${food.calories} kal</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function filterFoods() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const allFoods = [...foodDatabase, ...customFoods];
+            const filtered = allFoods.filter(food => 
+                food.name.toLowerCase().includes(searchTerm) || 
+                food.category.toLowerCase().includes(searchTerm)
+            );
+            
+            document.getElementById('foodList').innerHTML = filtered.map((food, idx) => `
+                <div class="food-item" onclick="selectFood(${allFoods.indexOf(food)})">
+                    <div style="display:flex;justify-content:space-between;align-items:start">
+                        <div>
+                            <div style="font-weight:600;font-size:14px">${food.name}</div>
+                            <div style="font-size:12px;color:#6b7280">${food.category} • ${food.serving}</div>
+                        </div>
+                        <span style="font-weight:600;color:#9333ea;font-size:14px">${food.calories} kal</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectFood(index) {
+            const allFoods = [...foodDatabase, ...customFoods];
+            const food = allFoods[index];
+            
+            document.getElementById('modalBody').innerHTML = `
+                <h4 style="margin-bottom:12px">${food.name}</h4>
+                <p style="font-size:14px;color:#6b7280;margin-bottom:16px">Kategori: ${food.category}</p>
+                
+                <div class="grid-2" style="margin-bottom:16px">
+                    <div style="background:#f3e8ff;padding:12px;border-radius:6px">
+                        <div style="color:#6b7280;font-size:12px">Kalori</div>
+                        <div style="font-weight:bold;color:#9333ea" id="showCalories">${food.calories} kal</div>
+                    </div>
+                    <div style="background:#dbeafe;padding:12px;border-radius:6px">
+                        <div style="color:#6b7280;font-size:12px">Protein</div>
+                        <div style="font-weight:bold;color:#3b82f6" id="showProtein">${food.protein.toFixed(1)}g</div>
+                    </div>
+                    <div style="background:#fef3c7;padding:12px;border-radius:6px">
+                        <div style="color:#6b7280;font-size:12px">Karbohidrat</div>
+                        <div style="font-weight:bold;color:#eab308" id="showCarbs">${food.carbs.toFixed(1)}g</div>
+                    </div>
+                    <div style="background:#fed7aa;padding:12px;border-radius:6px">
+                        <div style="color:#6b7280;font-size:12px">Lemak</div>
+                        <div style="font-weight:bold;color:#f97316" id="showFat">${food.fat.toFixed(1)}g</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Porsi: <span id="portionText">1</span>x (${food.serving})</label>
+                    <input type="range" id="portionSlider" min="0.5" max="5" step="0.5" value="1" 
+                        oninput="updatePortion(${food.calories}, ${food.protein}, ${food.carbs}, ${food.fat})"
+                        style="width:100%">
+                </div>
+
+                <button class="btn btn-primary" onclick="addFoodToLog(${index})">Tambahkan ke Log</button>
+                <button class="btn" onclick="renderFoodSearch('${document.getElementById('mealTimeSelect').value}')" 
+                    style="width:100%;margin-top:8px;background:#e5e7eb">Kembali</button>
+            `;
+        }
+
+        function updatePortion(baseCal, basePro, baseCarbs, baseFat) {
+            const portion = parseFloat(document.getElementById('portionSlider').value);
+            document.getElementById('portionText').textContent = portion;
+            document.getElementById('showCalories').textContent = Math.round(baseCal * portion) + ' kal';
+            document.getElementById('showProtein').textContent = (basePro * portion).toFixed(1) + 'g';
+            document.getElementById('showCarbs').textContent = (baseCarbs * portion).toFixed(1) + 'g';
+            document.getElementById('showFat').textContent = (baseFat * portion).toFixed(1) + 'g';
+        }
+
+        function addFoodToLog(index) {
+            const allFoods = [...foodDatabase, ...customFoods];
+            const food = allFoods[index];
+            const portion = parseFloat(document.getElementById('portionSlider').value);
+            const mealTime = document.getElementById('mealTimeSelect').value;
+            
+            foodLog.push({
+                ...food,
+                calories: Math.round(food.calories * portion),
+                protein: Math.round(food.protein * portion * 10) / 10,
+                carbs: Math.round(food.carbs * portion * 10) / 10,
+                fat: Math.round(food.fat * portion * 10) / 10,
+                fiber: Math.round(food.fiber * portion * 10) / 10,
+                portion: portion,
+                mealTime: mealTime,
+                id: Date.now()
+            });
+            
+            saveData();
+            closeModal();
+            switchTab('food');
+        }
+
+        function showManualInput() {
+            document.getElementById('modalBody').innerHTML = `
+                <h4 style="margin-bottom:16px">Tambah Makanan Baru</h4>
+                
+                <div class="input-group">
+                    <label>Nama Makanan *</label>
+                    <input type="text" id="manualName" placeholder="contoh: Nasi Uduk">
+                </div>
+
+                <div class="input-group">
+                    <label>Kalori (kal) *</label>
+                    <input type="number" id="manualCalories" placeholder="350">
+                </div>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Protein (g)</label>
+                        <input type="number" id="manualProtein" placeholder="0" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label>Karbohidrat (g)</label>
+                        <input type="number" id="manualCarbs" placeholder="0" value="0">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Lemak (g)</label>
+                        <input type="number" id="manualFat" placeholder="0" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label>Serat (g)</label>
+                        <input type="number" id="manualFiber" placeholder="0" value="0">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Ukuran Porsi</label>
+                    <input type="text" id="manualServing" placeholder="1 piring" value="1 porsi">
+                </div>
+
+                <div style="background:#dbeafe;border:1px solid #3b82f6;padding:12px;border-radius:6px;margin-bottom:16px">
+                    <p style="font-weight:600;font-size:12px;color:#1e3a8a;margin-bottom:4px">💡 Tips:</p>
+                    <p style="font-size:12px;color:#1e40af">Makanan disimpan untuk dipakai lagi. Wajib: Nama & Kalori.</p>
+                </div>
+
+                <button class="btn btn-success" onclick="saveManualFood()" style="width:100%">Simpan & Tambahkan</button>
+                <button class="btn" onclick="renderFoodSearch('breakfast')" style="width:100%;margin-top:8px;background:#e5e7eb">Batal</button>
+            `;
+        }
+
+        function saveManualFood() {
+            const name = document.getElementById('manualName').value;
+            const calories = parseFloat(document.getElementById('manualCalories').value);
+            
+            if (!name || !calories) {
+                alert('Nama dan Kalori wajib diisi!');
+                return;
+            }
+            
+            const newFood = {
+                name: name,
+                category: "Custom",
+                calories: calories,
+                protein: parseFloat(document.getElementById('manualProtein').value) || 0,
+                carbs: parseFloat(document.getElementById('manualCarbs').value) || 0,
+                fat: parseFloat(document.getElementById('manualFat').value) || 0,
+                fiber: parseFloat(document.getElementById('manualFiber').value) || 0,
+                serving: document.getElementById('manualServing').value
+            };
+            
+            customFoods.push(newFood);
+            
+            const mealTime = document.getElementById('mealTimeSelect')?.value || 'breakfast';
+            foodLog.push({
+                ...newFood,
+                portion: 1,
+                mealTime: mealTime,
+                id: Date.now()
+            });
+            
+            saveData();
+            closeModal();
+            switchTab('food');
+        }
+
+        function deleteFood(id) {
+            if (confirm('Hapus makanan ini?')) {
+                foodLog = foodLog.filter(f => f.id !== id);
+                saveData();
+                render();
+            }
+        }
+
+        function addWater() {
+            waterIntake += 250;
+            saveData();
+            render();
+        }
+
+        function saveWeight() {
+            const newWeight = parseFloat(document.getElementById('weightInput').value);
+            if (newWeight > 0) {
+                currentWeight = newWeight;
+                progressData.push({ week: progressData.length, weight: newWeight });
+                saveData();
+                render();
+                alert('Berat badan berhasil disimpan!');
+            }
+        }
+
+        function markExercise(id) {
+            const exercise = exercises.find(e => e.id === id);
+            const exists = exerciseLog.find(e => e.id === id);
+            
+            if (!exists && exercise) {
+                exerciseLog.push(exercise);
+                saveData();
+                render();
+            }
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
